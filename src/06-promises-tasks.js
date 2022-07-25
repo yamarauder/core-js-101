@@ -28,8 +28,17 @@
  *      .catch((error) => console.log(error.message)) // 'Error: Wrong parameter is passed!
  *                                                    //  Ask her again.';
  */
-function willYouMarryMe(/* isPositiveAnswer */) {
-  throw new Error('Not implemented');
+function willYouMarryMe(isPositiveAnswer) {
+  return new Promise((resolve, reject) => {
+    if (isPositiveAnswer === true) {
+      resolve('Hooray!!! She said "Yes"!');
+    } else if (isPositiveAnswer === false) {
+      resolve('Oh no, she said "No".');
+    } else {
+      // eslint-disable-next-line prefer-promise-reject-errors
+      reject(new Error('Wrong parameter is passed! Ask her again.'));
+    }
+  });
 }
 
 
@@ -48,9 +57,10 @@ function willYouMarryMe(/* isPositiveAnswer */) {
  *    })
  *
  */
-function processAllPromises(/* array */) {
-  throw new Error('Not implemented');
+function processAllPromises(array) {
+  return Promise.all(array.map((a) => a));
 }
+
 
 /**
  * Return Promise object that should be resolved with value received from
@@ -71,8 +81,8 @@ function processAllPromises(/* array */) {
  *    })
  *
  */
-function getFastestPromise(/* array */) {
-  throw new Error('Not implemented');
+function getFastestPromise(array) {
+  return Promise.race(array.map((a) => a));
 }
 
 /**
@@ -92,8 +102,35 @@ function getFastestPromise(/* array */) {
  *    });
  *
  */
-function chainPromises(/* array, action */) {
-  throw new Error('Not implemented');
+function chainPromises(array, action) {
+  // eslint-disable-next-line no-unused-vars
+  return new Promise((resolve, reject) => {
+    function pro(promises) {
+      // eslint-disable-next-line no-shadow
+      return new Promise((resolve, reject) => {
+        const results = [];
+        let resolvedCount = 0;
+
+        promises.forEach((promise, index) => {
+          promise
+            .then((result) => {
+              results[index] = result;
+
+              // eslint-disable-next-line no-plusplus
+              resolvedCount++;
+
+              if (resolvedCount === promises.length) {
+                resolve(results);
+              }
+            })
+            .catch((err) => reject(err));
+        });
+      });
+    }
+
+    const arrPromise = pro(array.map((a) => a));
+    resolve(arrPromise);
+  }).then((result) => result.reduce(action)).catch((err) => (new Error(err)));
 }
 
 module.exports = {
